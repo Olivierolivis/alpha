@@ -28,8 +28,7 @@ function doPost(e) {
         'activities',
         'estimatedDays',
         'estimatedCost',
-        'wishlist',
-        
+        'wishlist'
       ]);
     }
 
@@ -51,27 +50,7 @@ function doPost(e) {
       stringifyValue_(payload.activities),
       payload.estimatedDays || '',
       payload.estimatedCost || '',
-      stringifyValue_(payload.wishlist),
-      JSON.stringify(payload)
-    ]);
-
-    console.log('Data appended successfully');
-    return jsonResponse_({ success: true });
-  } catch (error) {
-    console.error('Error in doPost:', error);
-    return jsonResponse_({
-      success: false,
-      message: error.message
-    });
-  }
-}
-
-function parsePayload_(e) {
-  const rawContents = e && e.postData ? e.postData.contents : '';
-  console.log('Raw postData:', rawContents);
-  console.log('e.parameter:', e && e.parameter);
-
-  if (rawContents) {
+      stringifyValue_(payload.wishlist)
     try {
       console.log('Parsing as JSON:', rawContents);
       return JSON.parse(rawContents);
