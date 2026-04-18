@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visit Rwanda - The Land of a Thousand Hills</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="google-apps-script.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        rwanda: {
+                            green: '#15803d',
+                            darkGreen: '#14532d',
+                            yellow: '#fbbf24',
+                            blue: '#0ea5e9',
+                            beige: '#fafaf9',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        .dark .glass-effect {
+            background: rgba(17, 24, 39, 0.9);
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(21, 128, 61, 0.9) 0%, rgba(20, 83, 45, 0.8) 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .dark .card-hover:hover {
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .wishlist-heart {
+            transition: all 0.3s ease;
+        }
+        .wishlist-heart.active {
+            color: #ef4444;
+            transform: scale(1.2);
+        }
+        .page-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .page-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="font-sans bg-rwanda-beige dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-300">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-effect border-b border-gray-200 dark:border-gray-800 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center cursor-pointer" onclick="showPage('home')">
+                    <i data-lucide="mountain" class="h-8 w-8 text-rwanda-green mr-2"></i>
+                    <span class="text-2xl font-bold text-rwanda-green dark:text-rwanda-yellow">Visit Rwanda</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <button onclick="showPage('home')" class="nav-link text-gray-700 dark:text-gray-300 hover:text-rwanda-green dark:hover:text-rwanda-yellow font-medium transition">Home</button>
+                    <button onclick="showPage('parks')" class="nav-link text-gray-700 dark:text-gray-300 hover:text-rwanda-green dark:hover:text-rwanda-yellow font-medium transition">Parks</button>
+                    <button onclick="showPage('planner')" class="nav-link text-gray-700 dark:text-gray-300 hover:text-rwanda-green dark:hover:text-rwanda-yellow font-medium transition">Trip Planner</button>
+                    <button onclick="showPage('gallery')" class="nav-link text-gray-700 dark:text-gray-300 hover:text-rwanda-green dark:hover:text-rwanda-yellow font-medium transition">Gallery</button>
+                    <button onclick="showPage('about')" class="nav-link text-gray-700 dark:text-gray-300 hover:text-rwanda-green dark:hover:text-rwanda-yellow font-medium transition">About</button>
+                    <button onclick="showPage('contact')" class="nav-link text-gray-700 dark:text-gray-300 hover:text-rwanda-green dark:hover:text-rwanda-yellow font-medium transition">Contact</button>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                        <i data-lucide="sun" class="h-5 w-5 hidden dark:block text-rwanda-yellow"></i>
+                        <i data-lucide="moon" class="h-5 w-5 block dark:hidden text-gray-600"></i>
+                    </button>
+                    <button onclick="showWishlist()" class="relative p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                        <i data-lucide="heart" class="h-5 w-5 text-red-500"></i>
+                        <span id="wishlist-count" class="absolute -top-1 -right-1 bg-rwanda-yellow text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">0</span>
+                    </button>
+                    <button class="md:hidden p-2" onclick="toggleMobileMenu()">
+                        <i data-lucide="menu" class="h-6 w-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden glass-effect border-t border-gray-200 dark:border-gray-800">
+            <div class="px-4 pt-2 pb-6 space-y-2">
+                <button onclick="showPage('home')" class="block w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">Home</button>
+                <button onclick="showPage('parks')" class="block w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">Parks</button>
+                <button onclick="showPage('planner')" class="block w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">Trip Planner</button>
+                <button onclick="showPage('gallery')" class="block w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">Gallery</button>
+                <button onclick="showPage('about')" class="block w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">About</button>
+                <button onclick="showPage('contact')" class="block w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">Contact</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HOME PAGE -->
+    <section id="home" class="page-section active pt-20">
+        <!-- Hero Section -->
+        <div class="relative h-screen flex items-center justify-center overflow-hidden">
+            <div class="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1516426122078-c23e76319801?w=1920" alt="Rwanda Mountains" class="w-full h-full object-cover">
+                <div class="absolute inset-0 hero-gradient"></div>
+            </div>
+            
+            <div class="relative z-10 text-center px-4 max-w-5xl mx-auto animate-slide-up">
+                <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+                    Visit Rwanda<br>
+                    <span class="text-rwanda-yellow">The Land of a Thousand Hills</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-100 mb-10 max-w-3xl mx-auto">
+                    Discover breathtaking landscapes, encounter majestic gorillas, and experience the warmth of African hospitality in the heart of Africa.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button onclick="showPage('parks')" class="px-8 py-4 bg-rwanda-yellow text-rwanda-darkGreen font-bold rounded-full hover:bg-yellow-300 transform hover:scale-105 transition shadow-lg flex items-center justify-center gap-2">
+                        <i data-lucide="compass"></i>
+                        Explore Parks
+                    </button>
+                    <button onclick="showPage('planner')" class="px-8 py-4 bg-white text-rwanda-green font-bold rounded-full hover:bg-gray-100 transform hover:scale-105 transition shadow-lg flex items-center justify-center gap-2">
+                        <i data-lucide="calendar"></i>
+                        Plan Your Trip
+                    </button>
+                </div>
+            </div>
+            
+            <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+                <i data-lucide="chevron-down" class="h-8 w-8 text-white"></i>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="py-20 px-4 max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-rwanda-green dark:text-rwanda-yellow mb-4">Why Visit Rwanda?</h2>
+                <div class="w-24 h-1 bg-rwanda-yellow mx-auto rounded-full"></div>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="card-hover bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg text-center">
+                    <div class="w-16 h-16 bg-rwanda-green/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="trees" class="h-8 w-8 text-rwanda-green"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Pristine Nature</h3>
+                    <p class="text-gray-600 dark:text-gray-400">From volcanic mountains to lush rainforests and savanna plains, experience diverse ecosystems.</p>
+                </div>
+                
+                <div class="card-hover bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg text-center">
+                    <div class="w-16 h-16 bg-rwanda-yellow/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="users" class="h-8 w-8 text-rwanda-yellow"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Safe & Welcoming</h3>
+                    <p class="text-gray-600 dark:text-gray-400">One of Africa's safest destinations with warm, friendly people ready to welcome you.</p>
+                </div>
+                
+                <div class="card-hover bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg text-center">
+                    <div class="w-16 h-16 bg-rwanda-blue/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i data-lucide="camera" class="h-8 w-8 text-rwanda-blue"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Unique Wildlife</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Home to mountain gorillas, golden monkeys, and the Big Five in stunning natural settings.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Parks Preview -->
+        <div class="py-20 bg-white dark:bg-gray-800">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-bold text-rwanda-green dark:text-rwanda-yellow mb-4">Popular Destinations</h2>
+                    <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Explore our world-renowned national parks and protected areas</p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6" id="home-parks-grid">
+                    <!-- Populated by JS -->
+                </div>
+                
+                <div class="text-center mt-12">
+                    <button onclick="showPage('parks')" class="px-8 py-3 border-2 border-rwanda-green text-rwanda-green dark:border-rwanda-yellow dark:text-rwanda-yellow font-bold rounded-full hover:bg-rwanda-green hover:text-white dark:hover:bg-rwanda-yellow dark:hover:text-rwanda-darkGreen transition">
+                        View All Parks
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PARKS PAGE -->
+    <section id="parks" class="page-section pt-24 pb-20 px-4 max-w-7xl mx-auto">
+        <div class="text-center mb-12 animate-slide-up">
+            <h1 class="text-5xl font-bold text-rwanda-green dark:text-rwanda-yellow mb-4">National Parks</h1>
+            <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">Discover Rwanda's incredible biodiversity across four spectacular national parks</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8" id="parks-grid">
+            <!-- Populated by JS -->
+        </div>
+    </section>
+
+    <!-- PARK DETAILS MODAL -->
+    <div id="park-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" onclick="closeParkModal()">
+                <div class="absolute inset-0 bg-gray-900 opacity-75"></div>
+            </div>
+            
+            <div class="inline-block align-bottom bg-white dark:bg-gray-900 rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+                <div class="relative">
+                    <img id="modal-image" src="" alt="" class="w-full h-64 sm:h-96 object-cover">
+                    <button onclick="closeParkModal()" class="absolute top-4 right-4 bg-white dark:bg-gray-800 rounded-full p-2 shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                        <i data-lucide="x" class="h-6 w-6"></i>
+                    </button>
+                    <div class="absolute bottom-4 left-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur px-4 py-2 rounded-full">
+                        <span id="modal-location" class="font-semibold flex items-center gap-2">
+                            <i data-lucide="map-pin" class="h-4 w-4 text-rwanda-green"></i>
+                            <span></span>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="p-6 sm:p-8">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h2 id="modal-title" class="text-3xl font-bold text-rwanda-green dark:text-rwanda-yellow mb-2"></h2>
+                            <p id="modal-subtitle" class="text-gray-600 dark:text-gray-400"></p>
+                        </div>
+                        <button id="modal-wishlist" class="wishlist-heart p-3 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                            <i data-lucide="heart" class="h-6 w-6"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                                <i data-lucide="info" class="h-5 w-5 text-rwanda-blue"></i>
+                                About
+                            </h3>
+                            <p id="modal-description" class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed"></p>
+                            
+                            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                                <i data-lucide="activity" class="h-5 w-5 text-rwanda-blue"></i>
+                                Activities
+                            </h3>
+                            <ul id="modal-activities" class="space-y-2 mb-6">
+                                <!-- Populated by JS -->
+                            </ul>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl">
+                                <h4 class="font-bold mb-2 text-rwanda-green dark:text-rwanda-yellow">Entry Fees (2026)</h4>
+                                <p id="modal-fees" class="text-sm text-gray-600 dark:text-gray-400"></p>
+                            </div>
+                            
+                            <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl">
+                                <h4 class="font-bold mb-2 text-rwanda-green dark:text-rwanda-yellow">Best Time to Visit</h4>
+                                <p id="modal-best-time" class="text-sm text-gray-600 dark:text-gray-400"></p>
+                            </div>
+                            
+                            <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl">
+                                <h4 class="font-bold mb-2 text-rwanda-green dark:text-rwanda-yellow">Duration</h4>
+                                <p id="modal-duration" class="text-sm text-gray-600 dark:text-gray-400"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h3 class="text-xl font-bold mb-4">Location</h3>
+                        <div class="bg-gray-200 dark:bg-gray-700 rounded-xl h-64 flex items-center justify-center">
+                            <div class="text-center text-gray-500 dark:text-gray-400">
+                                <i data-lucide="map" class="h-12 w-12 mx-auto mb-2"></i>
+                                <p>Interactive Map</p>
+                                <p class="text-sm">(Google Maps Integration)</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 flex gap-4">
+                        <button onclick="closeParkModal(); showPage('planner')" class="flex-1 bg-rwanda-green dark:bg-rwanda-yellow text-white dark:text-rwanda-darkGreen font-bold py-3 rounded-xl hover:opacity-90 transition">
+                            Add to Itinerary
+                        </button>
+                        <button onclick="closeParkModal()" class="px-6 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRIP PLANNER PAGE -->
+    <section id="planner" class="page-section pt-24 pb-20 px-4 max-w-7xl mx-auto">
+        <div class="text-center mb-12 animate-slide-up">
+            <h1 class="text-5xl font-bold text-rwanda-green dark:text-rwanda-yellow mb-4">Trip Planner</h1>
+            <p class="text-xl text-gray-600 dark:text-gray-400">Let us help you create the perfect Rwanda itinerary</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-12">
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <i data-lucide="settings" class="h-6 w-6 text-rwanda-green"></i>
+                    Your Preferences
+                </h2>
+                
+                <form id="planner-form" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Travel Dates</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="date" id="start-date" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-rwanda-green dark:focus:ring-rwanda-yellow outline-none">
+                            <input type="date" id="end-date" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-rwanda-green dark:focus:ring-rwanda-yellow outline-none">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Number of Travelers</label>
+                        <select id="travelers" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-rwanda-green dark:focus:ring-rwanda-yellow outline-none">
+                            <option value="1">1 Person</option>
+                            <option value="2" selected>2 People</option>
+                            <option value="3">3 People</option>
+                            <option value="4">4 People</option>
+                            <option value="5+">5+ People</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-3">Interests (Select all that apply)</label>
+                        <div class="space-y-3">
+                            <label class="flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                                <input type="checkbox" value="wildlife" class="interest-checkbox w-5 h-5 text-rwanda-green rounded focus:ring-rwanda-green">
+                                <span class="ml-3 flex items-center gap-2">
+                                    <i data-lucide="paw-print" class="h-5 w-5 text-rwanda-green"></i>
+                                    Wildlife & Gorilla Trekking
+                                </span>
+                            </label>
+                            <label class="flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                                <input type="checkbox" value="adventure" class="interest-checkbox w-5 h-5 text-rwanda-green rounded focus:ring-rwanda-green">
+                                <span class="ml-3 flex items-center gap-2">
+                                    <i data-lucide="mountain" class="h-5 w-5 text-rwanda-green"></i>
+                                    Adventure & Hiking
+                                </span>
+                            </label>
+                            <label class="flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                                <input type="checkbox" value="culture" class="interest-checkbox w-5 h-5 text-rwanda-green rounded focus:ring-rwanda-green">
+                                <span class="ml-3 flex items-center gap-2">
+                                    <i data-lucide="users" class="h-5 w-5 text-rwanda-green"></i>
+                                    Culture & Community
+                                </span>
+                            </label>
+                            <label class="flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                                <input type="checkbox" value="relaxation" class="interest-checkbox w-5 h-5 text-rwanda-green rounded focus:ring-rwanda-green">
+                                <span class="ml-3 flex items-center gap-2">
+                                    <i data-lucide="coffee" class="h-5 w-5 text-rwanda-green"></i>
+                                    Relaxation & Nature
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Budget Range (per person)</label>
+                        <select id="budget" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-rwanda-green dark:focus:ring-rwanda-yellow outline-none">
+                            <option value="budget">Budget ($100-200/day)</option>
+                            <option value="mid" selected>Mid-Range ($200-500/day)</option>
+                            <option value="luxury">Luxury ($500+/day)</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-rwanda-green dark:bg-rwanda-yellow text-white dark:text-rwanda-darkGreen font-bold py-4 rounded-xl hover:opacity-90 transition transform hover:scale-[1.02]">
+                        Generate My Itinerary
+                    </button>
+                    <p id="planner-form-status" class="hidden text-sm font-medium rounded-lg px-4 py-3"></p>
+                </form>
+            </div>
+            
+            <div id="itinerary-result" class="hidden">
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg">
+                    <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                        <i data-lucide="calendar-check" class="h-6 w-6 text-rwanda-yellow"></i>
+                        Your Suggested Itinerary
+                    </h2>
+                    <div id="itinerary-content" class="space-y-4">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div class="mt-6 p-4 bg-rwanda-yellow/10 dark:bg-rwanda-yellow/20 rounded-xl">
+                        <p class="text-sm text-gray-700 dark:text-gray-300">
+                            <i data-lucide="info" class="h-4 w-4 inline mr-1"></i>
+                            This is a suggested itinerary. Contact us to customize it further!
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="planner-placeholder" class="lg:col-span-2 text-center py-20">
+                <i data-lucide="map-pin" class="h-24 w-24 text-gray-300 dark:text-gray-600 mx-auto mb-4"></i>
+                <p class="text-gray-500 dark:text-gray-400 text-lg">Fill out the form to generate your personalized itinerary</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- GALLERY PAGE -->
+    <section id="gallery" class="page-section pt-24 pb-20 px-4 max-w-7xl mx-auto">
+        <div class="text-center mb-12 animate-slide-up">
+            <h1 class="text-5xl font-bold text-rwanda-green dark:text-rwanda-yellow mb-4">Gallery</h1>
+            <p class="text-xl text-gray-600 dark:text-gray-400">Stunning views from the Land of a Thousand Hills</p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="gallery-grid">
+            <!-- Populated by JS -->
+        </div>
+    </section>
+
+    <!-- ABOUT PAGE -->
+    <section id="about" class="page-section pt-24 pb-20 px-4 max-w-7xl mx-auto">
+        <div class="grid lg:grid-cols-2 gap-12 items-center mb-16">
+            <div class="animate-slide-up">
+                <h1 class="text-5xl font-bold text-rwanda-green dark:text-rwanda-yellow mb-6">About Rwanda</h1>
+                <p class="text-lg text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
+                    Rwanda, known as "The Land of a Thousand Hills," is a small, landlocked country in East Africa that has emerged as one of the continent's most remarkable success stories.
+                </p>
+                <p class="text-lg text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
+                    From the misty volcanoes of the north to the savanna plains of the east, Rwanda offers an incredible diversity of landscapes and wildlife experiences. The country is renowned for its conservation efforts, particularly the protection of endangered mountain gorillas.
+                </p>
+                
+                <div class="grid grid-cols-3 gap-4 mt-8">
+                    <div class="text-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow">
+                        <div class="text-3xl font-bold text-rwanda-green dark:text-rwanda-yellow">26,338</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">km² Area</div>
+                    </div>
+                    <div class="text-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow">
+                        <div class="text-3xl font-bold text-rwanda-green dark:text-rwanda-yellow">13M+</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Population</div>
+                    </div>
+                    <div class="text-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow">
+                        <div class="text-3xl font-bold text-rwanda-green dark:text-rwanda-yellow">4</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">National Parks</div>
+                    </div>
+                </div>
+            </div>
+            <div class="relative">
+                <img src="https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=800" alt="Rwanda Landscape" class="rounded-2xl shadow-2xl">
+                <div class="absolute -bottom-6 -left-6 bg-rwanda-yellow p-6 rounded-xl shadow-lg hidden md:block">
+                    <p class="font-bold text-rwanda-darkGreen">Safety First</p>
+                    <p class="text-sm text-rwanda-darkGreen">One of Africa's safest countries</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8 mb-16">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                <i data-lucide="shield-check" class="h-12 w-12 text-rwanda-green mb-4"></i>
+                <h3 class="text-xl font-bold mb-2">Safety & Security</h3>
+                <p class="text-gray-600 dark:text-gray-400">Rwanda is consistently ranked as one of the safest countries in Africa, with low crime rates and a stable government.</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                <i data-lucide="cloud-sun" class="h-12 w-12 text-rwanda-yellow mb-4"></i>
+                <h3 class="text-xl font-bold mb-2">Climate</h3>
+                <p class="text-gray-600 dark:text-gray-400">Tropical highland climate with temperatures averaging 20-25°C (68-77°F) year-round. Two rainy seasons: March-May and October-November.</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                <i data-lucide="globe" class="h-12 w-12 text-rwanda-blue mb-4"></i>
+                <h3 class="text-xl font-bold mb-2">Culture</h3>
+                <p class="text-gray-600 dark:text-gray-400">Rich cultural heritage with traditional dance, music, and crafts. Known for hospitality and the famous "Agaciro" (dignity) spirit.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT PAGE -->
+    <section id="contact" class="page-section pt-24 pb-20 px-4 max-w-7xl mx-auto">
+        <div class="text-center mb-12 animate-slide-up">
+            <h1 class="text-5xl font-bold text-rwanda-green dark:text-rwanda-yellow mb-4">Contact Us</h1>
+            <p class="text-xl text-gray-600 dark:text-gray-400">Ready to plan your Rwanda adventure? Get in touch!</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-12">
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg">
+                <form id="contact-form" class="space-y-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="contact-first-name" class="block text-sm font-medium mb-2">First Name</label>
+                            <input id="contact-first-name" name="firstName" type="text" required class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-rwanda-green dark:focus:ring-rwanda-yellow outline-none" placeholder="John">
+                        </div>
+                        <div>
+                            <label for="contact-last-name" class="block text-sm font-medium mb-2">Last Name</label>
+                            <input id="contact-last-name" name="lastName" type="text" required class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-rwanda-green dark:focus:ring-rwanda-yellow outline-none" placeholder="Doe">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="contact-email" class="block text-sm font-medium mb-2">Email</label>
+                        <input id="contact-email" name="email" type="email" required class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-rwanda-green dark:focus:ring-rwanda-yellow outline-none" placeholder="john@example.com">
+                    </div>
+                    
+                    <div>
+                        <label for="contact-subject" class="block text-sm font-medium mb-2">Subject</label>
+                        <select id="contact-subject" name="subject" class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-rwanda-green dark:focus:ring-rwanda-yellow outline-none">
+                            <option>General Inquiry</option>
+                            <option>Booking Request</option>
+                            <option>Trip Planning</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="contact-message" class="block text-sm font-medium mb-2">Message</label>
+                        <textarea id="contact-message" name="message" rows="5" required class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 focus:ring-2 focus:ring-rwanda-green dark:focus:ring-rwanda-yellow outline-none" placeholder="Tell us about your dream trip..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-rwanda-green dark:bg-rwanda-yellow text-white dark:text-rwanda-darkGreen font-bold py-4 rounded-xl hover:opacity-90 transition">
+                        Send Message
+                    </button>
+                    <p id="contact-form-status" class="hidden text-sm font-medium rounded-lg px-4 py-3"></p>
+                </form>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <i data-lucide="map-pin" class="h-6 w-6 text-rwanda-green"></i>
+                        Visit Us
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Rwanda Development Board<br>
+                        KN 3 Rd, Kigali<br>
+                        Rwanda
+                    </p>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <i data-lucide="phone" class="h-6 w-6 text-rwanda-green"></i>
+                        Call Us
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        +250 788 123 456<br>
+                        +250 252 584 000
+                    </p>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <i data-lucide="mail" class="h-6 w-6 text-rwanda-green"></i>
+                        Email Us
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        info@visitrwanda.com<br>
+                        bookings@visitrwanda.com
+                    </p>
+                </div>
+                
+                <div class="bg-rwanda-green dark:bg-rwanda-yellow p-6 rounded-2xl shadow-lg text-white dark:text-rwanda-darkGreen">
+                    <h3 class="text-xl font-bold mb-2">Emergency Contacts</h3>
+                    <p class="mb-1">Police: 112</p>
+                    <p class="mb-1">Ambulance: 912</p>
+                    <p>Tourist Police: +250 788 311 377</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 mt-20">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i data-lucide="mountain" class="h-8 w-8 text-rwanda-yellow mr-2"></i>
+                        <span class="text-2xl font-bold">Visit Rwanda</span>
+                    </div>
+                    <p class="text-gray-400">Discover the beauty, wildlife, and culture of the Land of a Thousand Hills.</p>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-4 text-rwanda-yellow">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><button onclick="showPage('parks')" class="hover:text-white transition">National Parks</button></li>
+                        <li><button onclick="showPage('planner')" class="hover:text-white transition">Trip Planner</button></li>
+                        <li><button onclick="showPage('gallery')" class="hover:text-white transition">Gallery</button></li>
+                        <li><button onclick="showPage('about')" class="hover:text-white transition">About Rwanda</button></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-4 text-rwanda-yellow">Resources</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">Visa Requirements</a></li>
+                        <li><a href="#" class="hover:text-white transition">Travel Tips</a></li>
+                        <li><a href="#" class="hover:text-white transition">Packing Guide</a></li>
+                        <li><a href="#" class="hover:text-white transition">FAQs</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-4 text-rwanda-yellow">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-rwanda-green transition">
+                            <i data-lucide="facebook" class="h-5 w-5"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-rwanda-green transition">
+                            <i data-lucide="instagram" class="h-5 w-5"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-rwanda-green transition">
+                            <i data-lucide="twitter" class="h-5 w-5"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-rwanda-green transition">
+                            <i data-lucide="youtube" class="h-5 w-5"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 text-center text-gray-400">
+                <p>&copy; 2026 Visit Rwanda. All rights reserved. | Designed with <i data-lucide="heart" class="h-4 w-4 inline text-red-500"></i> for Rwanda</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Data
+        const parks = [
+            {
+                id: 1,
+                name: "Volcanoes National Park",
+                location: "Musanze District, Northern Province",
+                image: "https://images.unsplash.com/photo-1535083783855-76ae62b2914e?w=800",
+                description: "Home to the endangered mountain gorillas, Volcanoes National Park offers one of the most incredible wildlife experiences in the world. Trek through bamboo forests to meet these magnificent primates in their natural habitat.",
+                activities: ["Gorilla Trekking", "Golden Monkey Tracking", "Hiking to Karisoke Research Center", "Cave Exploration", "Bird Watching"],
+                fees: "Gorilla Trekking: $1,500 per person | Golden Monkey Tracking: $100 per person | Park Entry: $75 per person",
+                bestTime: "June to September and December to February (dry seasons)",
+                duration: "1-3 days recommended",
+                category: "wildlife"
+            },
+            {
+                id: 2,
+                name: "Akagera National Park",
+                location: "Eastern Province",
+                image: "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=800",
+                description: "Rwanda's only savanna park, Akagera is home to the Big Five and offers classic African safari experiences. With diverse landscapes ranging from wetlands to grasslands, it's a haven for wildlife enthusiasts.",
+                activities: ["Game Drives", "Boat Safaris on Lake Ihema", "Walking Safaris", "Bird Watching (500+ species)", "Night Game Drives", "Fishing"],
+                fees: "Park Entry: $50 per person | Game Drive: $200 (half day) | Boat Safari: $50 per person",
+                bestTime: "June to September (dry season) for best wildlife viewing",
+                duration: "2-3 days recommended",
+                category: "safari"
+            },
+            {
+                id: 3,
+                name: "Nyungwe Forest National Park",
+                location: "Southern Province",
+                image: "https://images.unsplash.com/photo-1589553416260-f586c4a9c26f?w=800",
+                description: "One of Africa's oldest rainforests, Nyungwe is a biodiversity hotspot featuring chimpanzees, a spectacular canopy walk, and over 300 bird species. The park offers thrilling adventures in pristine montane rainforest.",
+                activities: ["Chimpanzee Trekking", "Canopy Walkway", "Colobus Monkey Tracking", "Hiking Trails", "Bird Watching", "Waterfall Hikes"],
+                fees: "Park Entry: $50 per person | Chimpanzee Trekking: $100 per person | Canopy Walk: $60 per person",
+                bestTime: "June to September and December to February",
+                duration: "2-3 days recommended",
+                category: "adventure"
+            },
+            {
+                id: 4,
+                name: "Gishwati-Mukura National Park",
+                location: "Western Province",
+                image: "https://images.unsplash.com/photo-1534177616072-ef7dc1af1c42?w=800",
+                description: "Rwanda's newest national park, Gishwati-Mukura is a conservation success story. This restored forest is home to chimpanzees, golden monkeys, and diverse bird species, offering intimate wildlife experiences.",
+                activities: ["Chimpanzee Tracking", "Golden Monkey Viewing", "Nature Walks", "Bird Watching", "Community Visits", "Photography"],
+                fees: "Park Entry: $50 per person | Chimpanzee Tracking: $100 per person",
+                bestTime: "Year-round, best in dry seasons",
+                duration: "1-2 days recommended",
+                category: "nature"
+            }
+        ];
+
+        const galleryImages = [
+            "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=600",
+            "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=600",
+            "https://images.unsplash.com/photo-1535083783855-76ae62b2914e?w=600",
+            "https://images.unsplash.com/photo-1589553416260-f586c4a9c26f?w=600",
+            "https://images.unsplash.com/photo-1534177616072-ef7dc1af1c42?w=600",
+            "https://images.unsplash.com/photo-1523805009345-7448845a9e53?w=600",
+            "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=600",
+            "https://images.unsplash.com/photo-1516426122078-c23e76319801?w=600"
+        ];
+
+        let wishlist = JSON.parse(localStorage.getItem('rwandaWishlist')) || [];
+        const GOOGLE_SHEET_ID = '1NeNZwif6P638sTjtV-KVWgGqpKsqIASMjq4NHgk7Q8M';
+        const GOOGLE_SHEETS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby-wbtWeZ1dZ8cahxq-squn-v9nWl_kN3uk_aoorpSzpXK9JcOL2WwgEc2oxUxdBUkL/exec';
+
+        function setFormStatus(elementId, message, type) {
+            const status = document.getElementById(elementId);
+            if (!status) return;
+
+            status.textContent = message;
+            status.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'dark:bg-red-900/40', 'dark:text-red-200', 'dark:bg-green-900/40', 'dark:text-green-200');
+
+            if (type === 'success') {
+                status.classList.add('bg-green-100', 'text-green-700', 'dark:bg-green-900/40', 'dark:text-green-200');
+            } else {
+                status.classList.add('bg-red-100', 'text-red-700', 'dark:bg-red-900/40', 'dark:text-red-200');
+            }
+        }
+
+        function submitToGoogleSheet(payload) {
+            if (!GOOGLE_SHEETS_WEB_APP_URL || GOOGLE_SHEETS_WEB_APP_URL.includes('PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE')) {
+                throw new Error(`Google Sheets web app URL is not configured. Connect spreadsheet to an Apps Script web app first.`);
+            }
+
+            console.log('Sending payload to:', GOOGLE_SHEETS_WEB_APP_URL, payload);
+            const formData = new URLSearchParams();
+            for (const [key, value] of Object.entries(payload)) {
+                formData.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value ?? ''));
+            }
+
+            return fetch(GOOGLE_SHEETS_WEB_APP_URL, {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                console.log('Fetch response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(text => {
+                console.log('Response text:', text);
+                if (text.startsWith('ERROR')) {
+                    throw new Error(text.substring(7));
+                }
+                return { success: true };
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                throw error;
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderParks();
+            renderHomeParks();
+            renderGallery();
+            updateWishlistCount();
+            checkDarkMode();
+
+            const contactForm = document.getElementById('contact-form');
+            contactForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const submitButton = contactForm.querySelector('button[type="submit"]');
+                const payload = {
+                    source: 'contact-form',
+                    submittedAt: new Date().toISOString(),
+                    page: 'contact',
+                    spreadsheetId: GOOGLE_SHEET_ID,
+                    firstName: document.getElementById('contact-first-name').value.trim(),
+                    lastName: document.getElementById('contact-last-name').value.trim(),
+                    email: document.getElementById('contact-email').value.trim(),
+                    subject: document.getElementById('contact-subject').value,
+                    message: document.getElementById('contact-message').value.trim(),
+                    wishlist: wishlist.map(id => parks.find(park => park.id === id)?.name).filter(Boolean)
+                };
+
+                submitButton.disabled = true;
+                submitButton.textContent = 'Sending...';
+                setFormStatus('contact-form-status', 'Saving your message...', 'success');
+
+                try {
+                    await submitToGoogleSheet(payload);
+                    contactForm.reset();
+                    setFormStatus('contact-form-status', 'Your message was saved successfully. We will reach out soon.', 'success');
+                } catch (error) {
+                    console.error(error);
+                    setFormStatus('contact-form-status', error.message, 'error');
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Send Message';
+                }
+            });
+        });
+
+        // Navigation
+        function showPage(pageName) {
+            // Hide all sections
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show target section
+            document.getElementById(pageName).classList.add('active');
+            
+            // Close mobile menu if open
+            document.getElementById('mobile-menu').classList.add('hidden');
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+            
+            // Update active nav state
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('text-rwanda-green', 'dark:text-rwanda-yellow');
+            });
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        // Dark Mode
+        function toggleDarkMode() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function checkDarkMode() {
+            if (localStorage.getItem('theme') === 'dark' || 
+                (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+        }
+
+        // Render Functions
+        function renderParks() {
+            const grid = document.getElementById('parks-grid');
+            grid.innerHTML = parks.map(park => `
+                <div class="card-hover bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg group cursor-pointer" onclick="openParkModal(${park.id})">
+                    <div class="relative h-64 overflow-hidden">
+                        <img src="${park.image}" alt="${park.name}" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500">
+                        <div class="absolute top-4 right-4">
+                            <button onclick="event.stopPropagation(); toggleWishlist(${park.id})" class="wishlist-heart ${wishlist.includes(park.id) ? 'active' : ''} bg-white dark:bg-gray-800 p-2 rounded-full shadow-lg">
+                                <i data-lucide="heart" class="h-5 w-5"></i>
+                            </button>
+                        </div>
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                            <span class="text-white text-sm flex items-center gap-1">
+                                <i data-lucide="map-pin" class="h-4 w-4"></i>
+                                ${park.location}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-rwanda-green dark:text-rwanda-yellow mb-2">${park.name}</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">${park.description}</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            ${park.activities.slice(0, 3).map(activity => `
+                                <span class="px-3 py-1 bg-rwanda-green/10 dark:bg-rwanda-yellow/20 text-rwanda-green dark:text-rwanda-yellow text-sm rounded-full">${activity}</span>
+                            `).join('')}
+                        </div>
+                        <button class="w-full py-2 border-2 border-rwanda-green dark:border-rwanda-yellow text-rwanda-green dark:text-rwanda-yellow font-bold rounded-lg hover:bg-rwanda-green hover:text-white dark:hover:bg-rwanda-yellow dark:hover:text-rwanda-darkGreen transition">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function renderHomeParks() {
+            const grid = document.getElementById('home-parks-grid');
+            grid.innerHTML = parks.slice(0, 4).map(park => `
+                <div class="relative group cursor-pointer overflow-hidden rounded-xl" onclick="openParkModal(${park.id})">
+                    <img src="${park.image}" alt="${park.name}" class="w-full h-64 object-cover transform group-hover:scale-110 transition duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4">
+                        <h3 class="text-white font-bold text-lg mb-1">${park.name}</h3>
+                        <p class="text-gray-300 text-sm">${park.location}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderGallery() {
+            const grid = document.getElementById('gallery-grid');
+            grid.innerHTML = galleryImages.map((img, index) => `
+                <div class="relative group overflow-hidden rounded-xl cursor-pointer ${index === 0 || index === 5 ? 'col-span-2 row-span-2' : ''}">
+                    <img src="${img}" alt="Rwanda Gallery" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500">
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition duration-300 flex items-center justify-center">
+                        <i data-lucide="zoom-in" class="h-12 w-12 text-white opacity-0 group-hover:opacity-100 transition duration-300"></i>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // Park Modal
+        function openParkModal(parkId) {
+            const park = parks.find(p => p.id === parkId);
+            if (!park) return;
+
+            document.getElementById('modal-image').src = park.image;
+            document.getElementById('modal-title').textContent = park.name;
+            document.getElementById('modal-subtitle').textContent = park.location;
+            document.getElementById('modal-description').textContent = park.description;
+            document.getElementById('modal-location').querySelector('span').textContent = park.location;
+            document.getElementById('modal-fees').textContent = park.fees;
+            document.getElementById('modal-best-time').textContent = park.bestTime;
+            document.getElementById('modal-duration').textContent = park.duration;
+            
+            const activitiesList = document.getElementById('modal-activities');
+            activitiesList.innerHTML = park.activities.map(activity => `
+                <li class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                    <i data-lucide="check-circle" class="h-5 w-5 text-rwanda-green"></i>
+                    ${activity}
+                </li>
+            `).join('');
+            
+            // Update wishlist button
+            const wishlistBtn = document.getElementById('modal-wishlist');
+            wishlistBtn.onclick = () => toggleWishlist(park.id);
+            if (wishlist.includes(park.id)) {
+                wishlistBtn.classList.add('active');
+            } else {
+                wishlistBtn.classList.remove('active');
+            }
+            
+            document.getElementById('park-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            lucide.createIcons();
+        }
+
+        function closeParkModal() {
+            document.getElementById('park-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Wishlist
+        function toggleWishlist(parkId) {
+            const index = wishlist.indexOf(parkId);
+            if (index > -1) {
+                wishlist.splice(index, 1);
+            } else {
+                wishlist.push(parkId);
+            }
+            localStorage.setItem('rwandaWishlist', JSON.stringify(wishlist));
+            updateWishlistCount();
+            renderParks(); // Re-render to update heart icons
+            
+            // Update modal if open
+            const modal = document.getElementById('park-modal');
+            if (!modal.classList.contains('hidden')) {
+                const wishlistBtn = document.getElementById('modal-wishlist');
+                if (wishlist.includes(parkId)) {
+                    wishlistBtn.classList.add('active');
+                } else {
+                    wishlistBtn.classList.remove('active');
+                }
+            }
+        }
+
+        function updateWishlistCount() {
+            document.getElementById('wishlist-count').textContent = wishlist.length;
+        }
+
+        function showWishlist() {
+            if (wishlist.length === 0) {
+                alert('Your wishlist is empty! Add some parks to plan your trip.');
+                return;
+            }
+            
+            const parkNames = wishlist.map(id => parks.find(p => p.id === id)?.name).join(', ');
+            alert(`Your Wishlist:\n\n${parkNames}\n\nContact us to create an itinerary including these parks!`);
+            showPage('contact');
+        }
+
+        // Trip Planner
+        document.getElementById('planner-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const interests = Array.from(document.querySelectorAll('.interest-checkbox:checked')).map(cb => cb.value);
+            const budget = document.getElementById('budget').value;
+            const travelers = document.getElementById('travelers').value;
+
+            // Generate itinerary based on interests
+            let recommendedParks = [];
+            let activities = [];
+
+            if (interests.includes('wildlife')) {
+                recommendedParks.push(parks[0]); // Volcanoes
+                recommendedParks.push(parks[1]); // Akagera
+                activities.push('Gorilla Trekking', 'Game Drives', 'Big Five Safari');
+            }
+            if (interests.includes('adventure')) {
+                recommendedParks.push(parks[2]); // Nyungwe
+                recommendedParks.push(parks[0]); // Volcanoes
+                activities.push('Canopy Walk', 'Hiking', 'Chimpanzee Trekking');
+            }
+            if (interests.includes('culture')) {
+                activities.push('Cultural Village Visit', 'Traditional Dance Performance', 'Local Market Tour');
+            }
+            if (interests.includes('relaxation')) {
+                recommendedParks.push(parks[3]); // Gishwati-Mukura
+                activities.push('Nature Walks', 'Bird Watching', 'Scenic Drives');
+            }
+
+            // Remove duplicates
+            recommendedParks = [...new Set(recommendedParks)];
+
+            // Calculate duration
+            const days = recommendedParks.length * 2 + 2;
+
+            // Estimate cost
+            let dailyRate = budget === 'budget' ? 150 : budget === 'mid' ? 350 : 750;
+            const travelerCount = travelers === '5+' ? 5 : parseInt(travelers, 10);
+            const totalCost = days * dailyRate * travelerCount;
+
+            // Display results
+            document.getElementById('planner-placeholder').classList.add('hidden');
+            document.getElementById('itinerary-result').classList.remove('hidden');
+
+            const content = document.getElementById('itinerary-content');
+            content.innerHTML = `
+                <div class="bg-rwanda-yellow/10 dark:bg-rwanda-yellow/20 p-4 rounded-xl mb-6">
+                    <h3 class="font-bold text-rwanda-green dark:text-rwanda-yellow mb-2">Recommended Parks (${recommendedParks.length})</h3>
+                    <div class="flex flex-wrap gap-2">
+                        ${recommendedParks.map(park => `
+                            <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-full text-sm font-medium shadow">${park.name}</span>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="font-bold mb-3">Suggested Activities</h3>
+                    <ul class="space-y-2">
+                        ${activities.map(activity => `
+                            <li class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                <i data-lucide="check" class="h-5 w-5 text-rwanda-green"></i>
+                                ${activity}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Suggested Duration</div>
+                        <div class="text-2xl font-bold text-rwanda-green dark:text-rwanda-yellow">${days} Days</div>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Estimated Cost</div>
+                        <div class="text-2xl font-bold text-rwanda-green dark:text-rwanda-yellow">$${totalCost.toLocaleString()}</div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl">
+                    <h4 class="font-bold mb-2">Sample Itinerary</h4>
+                    <div class="space-y-3 text-sm">
+                        ${recommendedParks.map((park, index) => `
+                            <div class="flex gap-3">
+                                <div class="w-8 h-8 bg-rwanda-green dark:bg-rwanda-yellow text-white dark:text-rwanda-darkGreen rounded-full flex items-center justify-center font-bold flex-shrink-0">${index + 1}</div>
+                                <div>
+                                    <div class="font-bold">${park.name}</div>
+                                    <div class="text-gray-600 dark:text-gray-400">${park.duration}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            lucide.createIcons();
+
+            const plannerPayload = {
+                source: 'trip-planner',
+                submittedAt: new Date().toISOString(),
+                page: 'planner',
+                spreadsheetId: GOOGLE_SHEET_ID,
+                startDate: document.getElementById('start-date').value || '',
+                endDate: document.getElementById('end-date').value || '',
+                travelers,
+                budget,
+                interests,
+                recommendedParks: recommendedParks.map(park => park.name),
+                activities,
+                estimatedDays: days,
+                estimatedCost: totalCost,
+                wishlist: wishlist.map(id => parks.find(park => park.id === id)?.name).filter(Boolean)
+            };
+
+            try {
+                setFormStatus('planner-form-status', 'Saving your trip preferences...', 'success');
+                await submitToGoogleSheet(plannerPayload);
+                setFormStatus('planner-form-status', 'Your planner details were saved to Google Sheets.', 'success');
+            } catch (error) {
+                console.error(error);
+                setFormStatus('planner-form-status', error.message, 'error');
+            }
+
+            // Scroll to results
+            document.getElementById('itinerary-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow-md');
+            } else {
+                navbar.classList.remove('shadow-md');
+            }
+        });
+    </script>
+</body>
+</html>
