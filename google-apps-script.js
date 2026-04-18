@@ -51,6 +51,25 @@ function doPost(e) {
       payload.estimatedDays || '',
       payload.estimatedCost || '',
       stringifyValue_(payload.wishlist)
+    ]);
+
+    console.log('Data appended successfully');
+    return jsonResponse_({ success: true });
+  } catch (error) {
+    console.error('Error in doPost:', error);
+    return jsonResponse_({
+      success: false,
+      message: error.message
+    });
+  }
+}
+
+function parsePayload_(e) {
+  const rawContents = e && e.postData ? e.postData.contents : '';
+  console.log('Raw postData:', rawContents);
+  console.log('e.parameter:', e && e.parameter);
+
+  if (rawContents) {
     try {
       console.log('Parsing as JSON:', rawContents);
       return JSON.parse(rawContents);
