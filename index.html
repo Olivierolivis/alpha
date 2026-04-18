@@ -742,32 +742,51 @@
             }
 
             console.log('Sending payload to:', GOOGLE_SHEETS_WEB_APP_URL, payload);
-            const formData = new URLSearchParams();
-            for (const [key, value] of Object.entries(payload)) {
-                formData.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value ?? ''));
-            }
+            return new Promise((resolve, reject) => {
+                const iframeName = `google-sheet-submit-${Date.now()}`;
+                const iframe = document.createElement('iframe');
+                iframe.name = iframeName;
+                iframe.style.display = 'none';
+                iframe.sandbox = '';
 
-            return fetch(GOOGLE_SHEETS_WEB_APP_URL, {
-                method: 'POST',
-                body: formData,
-            })
-            .then(response => {
-                console.log('Fetch response status:', response.status);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.text();
-            })
-            .then(text => {
-                console.log('Response text:', text);
-                if (text.startsWith('ERROR')) {
-                    throw new Error(text.substring(7));
-                }
-                return { success: true };
-            })
-            .catch(error => {
-                console.error('Fetch error:', error);
-                throw error;
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = GOOGLE_SHEETS_WEB_APP_URL;
+                form.target = iframeName;
+                form.style.display = 'none';
+
+                Object.entries(payload).forEach(([key, value]) => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = typeof value === 'object' ? JSON.stringify(value) : String(value ?? '');
+                    form.appendChild(input);
+                });
+
+                const cleanup = () => {
+                    window.clearTimeout(timeoutId);
+                    iframe.remove();
+                    form.remove();
+                };
+
+                const timeoutId = window.setTimeout(() => {
+                    cleanup();
+                    reject(new Error('Timed out while sending data to Google Sheets.'));
+                }, 12000);
+
+                iframe.addEventListener('load', () => {
+                    cleanup();
+                    resolve({ success: true });
+                });
+
+                iframe.addEventListener('error', () => {
+                    cleanup();
+                    reject(new Error('Failed to send data to Google Sheets.'));
+                });
+
+                document.body.appendChild(iframe);
+                document.body.appendChild(form);
+                form.submit();
             });
         }
 
