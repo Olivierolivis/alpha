@@ -29,7 +29,7 @@ function doPost(e) {
         'estimatedDays',
         'estimatedCost',
         'wishlist',
-        'rawPayload'
+        
       ]);
     }
 
