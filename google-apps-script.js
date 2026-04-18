@@ -1,5 +1,5 @@
 const SHEET_ID = '1NeNZwif6P638sTjtV-KVWgGqpKsqIASMjq4NHgk7Q8M';
-const SHEET_NAME = 'sheet1';
+const SHEET_NAME = 'Sheet1';
 
 function doPost(e) {
   try {
@@ -68,6 +68,8 @@ function doPost(e) {
 
 function parsePayload_(e) {
   const rawContents = e && e.postData ? e.postData.contents : '';
+  console.log('Raw postData:', rawContents);
+  console.log('e.parameter:', e && e.parameter);
 
   if (rawContents) {
     try {
@@ -80,6 +82,7 @@ function parsePayload_(e) {
   }
 
   const params = (e && e.parameter) || {};
+  console.log('Using params from e.parameter:', params);
   return {
     submittedAt: params.submittedAt || new Date().toISOString(),
     source: params.source || '',
